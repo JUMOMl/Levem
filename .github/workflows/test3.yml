@@ -1,0 +1,37 @@
+name: CI Pipeline for Ticket System
+
+on:
+  push:
+    branches:
+      - main  # Запускать workflow при каждом push в ветку main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Операционная система для выполнения workflow
+
+    steps:
+      # Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Установка Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Версия Python
+
+      # Установка зависимостей
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Применение миграций базы данных
+      - name: Apply database migrations
+        run: |
+          python mydatabase.py create_database
+
+      # Запуск тестов
+      - name: Run tests
+        run: |
+          pytest tests.py
