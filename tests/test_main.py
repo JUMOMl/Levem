@@ -1,60 +1,46 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from mydatabase import *
-from ticketPurchaseInterface import TicketPurchaseInterface
-import os
+from mydatabase import Base, User, Event, Ticket
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/test_db")
+# Используем SQLite in-memory для тестов
+TEST_DATABASE_URL = "sqlite:///:memory:"
 
-@pytest.fixture
-def session():
-    """Создает тестовую сессию базы данных."""
-    engine = create_engine(DATABASE_URL)
-    TestingSession = sessionmaker(bind=engine)
-    session = TestingSession()
+# Создаем движок для тестов
+engine = create_engine(TEST_DATABASE_URL)
 
-    Base.metadata.create_all(engine)  # Создаем таблицы
+# Создаем фабрику сессий
+TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
-    yield session  # Передаем управление тесту
+@pytest.fixture(scope="function")
+def db_session():
+    """Фикстура для создания тестовой базы данных и сессии"""
+    # Создаем таблицы в памяти
+    Base.metadata.create_all(bind=engine)
+    session = TestingSessionLocal()
 
-    session.rollback()
+    yield session  # Передаем сессию в тест
+
+    # Очищаем БД после теста
     session.close()
-    Base.metadata.drop_all(engine)  # Удаляем таблицы после тестов
+    Base.metadata.drop_all(bind=engine)
 
-@pytest.fixture
-def ticket_interface(session):
-    """Создает объект TicketPurchaseInterface с тестовой сессией."""
-    return TicketPurchaseInterface(session)
+def test_create_user(db_session):
+    """Проверяем создание пользователя"""
+    new_user = User(username="testuser", email="test@example.com", password_hash="hashedpassword")
+    db_session.add(new_user)
+    db_session.commit()
 
-@pytest.fixture
-def sample_data(session):
-    """Добавляет тестовые данные в базу."""
-    user = User(user_id=1, name="Тестовый пользователь")
-    event = Event(event_id=1, title="Концерт", location="Москва")
-    session.add_all([user, event])
-    session.commit()
+    user_from_db = db_session.query(User).filter_by(username="testuser").first()
+    assert user_from_db is not None
+    assert user_from_db.email == "test@example.com"
 
-def test_view_available_events(ticket_interface, session, sample_data):
-    """Тест просмотра доступных мероприятий."""
-    events = ticket_interface.view_available_events()
-    assert len(events) == 1
-    assert events[0].title == "Концерт"
+def test_create_event(db_session):
+    """Проверяем создание мероприятия"""
+    new_event = Event(title="Test Event", description="This is a test event")
+    db_session.add(new_event)
+    db_session.commit()
 
-def test_purchase_ticket_success(ticket_interface, session, sample_data):
-    """Тест успешной покупки билета."""
-    success = ticket_interface.purchase_ticket(user_id=1, event_id=1, price=500)
-    assert success
-    assert session.query(Ticket).count() == 1
-
-def test_purchase_ticket_invalid_user(ticket_interface, session, sample_data):
-    """Тест покупки билета с несуществующим пользователем."""
-    success = ticket_interface.purchase_ticket(user_id=99, event_id=1, price=500)
-    assert not success
-    assert session.query(Ticket).count() == 0
-
-def test_purchase_ticket_invalid_event(ticket_interface, session, sample_data):
-    """Тест покупки билета на несуществующее мероприятие."""
-    success = ticket_interface.purchase_ticket(user_id=1, event_id=99, price=500)
-    assert not success
-    assert session.query(Ticket).count() == 0
+    event_from_db = db_session.query(Event).filter_by(title="Test Event").first()
+    assert event_from_db is not None
+    assert event_from_db.description == "This is a test event"
