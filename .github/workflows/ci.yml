@@ -1,0 +1,37 @@
+name: CI Pipeline for SQLAlchemy Project
+
+on:
+  push:
+    branches:
+      - main # Запускаем workflow при каждом push в ветку main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # ОС для выполнения workflow
+
+    steps:
+      # Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Установка Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9" # Версия Python
+
+      # Установка зависимостей
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Запуск миграций базы данных (если они нужны)
+      - name: Apply database migrations
+        run: |
+          python mydatabase.py create_database  # Запустите команду для создания базы данных
+
+      # Запуск тестов
+      - name: Run tests
+        run: |
+          pytest tests.py  # Запустите ваши тесты
