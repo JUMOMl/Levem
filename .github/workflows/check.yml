@@ -1,0 +1,30 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main # Запускать workflow при каждом push в ветку main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest # Операционная система для выполнения job'а
+
+    steps:
+      - name: Checkout code # Клонирование репозитория
+        uses: actions/checkout@v3
+
+      - name: Install dependencies # Установка зависимостей
+        run: npm ci
+
+      - name: Lint # Запуск линтера
+        run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest # Операционная система для выполнения job'а
+
+    steps:
+      - name: Checkout code # Клонирование репозитория
+        uses: actions/checkout@v3
+
+      - name: Install dependencies # Установка зависимостей
+        run:
