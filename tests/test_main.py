@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from mydatabase import Base, Event, User, Ticket
+from mydatabase import *
 from ticketPurchaseInterface import TicketPurchaseInterface
 import os
 
