@@ -1,37 +1,54 @@
-name: CI Pipeline for SQLAlchemy Project
+name: CI Pipeline
 
 on:
   push:
     branches:
-      - main # Запускаем workflow при каждом push в ветку main
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest # ОС для выполнения workflow
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      # Клонирование репозитория
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      # Установка Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9" # Версия Python
+          python-version: "3.11"
 
-      # Установка зависимостей
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Запуск миграций базы данных (если они нужны)
-      - name: Apply database migrations
+      - name: Run Migrations
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/test_db
         run: |
-          python mydatabase.py create_database  # Запустите команду для создания базы данных
+          alembic upgrade head
 
-      # Запуск тестов
-      - name: Run tests
+      - name: Run Tests
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/test_db
         run: |
-          pytest tests.py  # Запустите ваши тесты
+          pytest --disable-warnings
