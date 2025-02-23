@@ -3,8 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from mydatabase import Base, Event, User, Ticket
 from ticketPurchaseInterface import TicketPurchaseInterface
+import os
 
-DATABASE_URL = "sqlite:///:memory:"  # Используем временную базу в памяти для тестов
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/test_db")
 
 @pytest.fixture
 def session():
@@ -12,11 +13,12 @@ def session():
     engine = create_engine(DATABASE_URL)
     TestingSession = sessionmaker(bind=engine)
     session = TestingSession()
-    
+
     Base.metadata.create_all(engine)  # Создаем таблицы
 
     yield session  # Передаем управление тесту
 
+    session.rollback()
     session.close()
     Base.metadata.drop_all(engine)  # Удаляем таблицы после тестов
 
