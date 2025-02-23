@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install psycopg2  # Установка psycopg2 вручную
 
       - name: Show directory structure
         run: ls -R
