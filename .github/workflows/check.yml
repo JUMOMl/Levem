@@ -1,7 +1,6 @@
 name: Check
 on: push #тригер
 jobs:
-build:
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -11,3 +10,12 @@ build:
         run: npm ci
       - name: Lint
         run: npm run lint
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Install deps
+          run: npm ci
+        - name: Test
+          run: npm run test
