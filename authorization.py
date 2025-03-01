@@ -297,25 +297,30 @@ class RegistrationAndAuthorization:
                 print("Некорректный выбор. Пожалуйста, выберите 1, 2 или 3.")
 
 
+# ... (вся остальная часть кода остается без изменений)
+
 app = RegistrationAndAuthorization()
 org_app = OrganizerInterface(app.session)  # ООП: Ассоциация - передача сессии базы данных в другой класс.
 buy_app = TicketPurchaseInterface(app.session)  # ООП: Ассоциация - связь между объектами для управления данными.
 
-if app.registration_menu():  # ООП: Полиморфизм - вызов разных действий через меню.
-    print("1 - создать, 2 - купить")
-    choice = input("выберите опцию (1-2): ")
-    if choice == '1':
-        org_app.create_event(
-            app.current_user_id,
-            input("Введите название мероприятия:"),
-            input("Введите описание мероприятия:"),
-            input("Введите дату мероприятия:"),
-            input("Введите дату окончания: "),
-            input("Введите место проведения: ")
-        )
-    elif choice == '2':
-        buy_app.purchase_ticket(
-            app.current_user_id,
-            int(input("Введите ID мероприятия: ")),
-            float(input("Введите цену билета: "))
-        )
+# Добавляем проверку на запуск файла напрямую
+if __name__ == "__main__":
+    if app.registration_menu():  # ООП: Полиморфизм - вызов разных действий через меню.
+        print("1 - создать, 2 - купить")
+        choice = input("выберите опцию (1-2): ")
+        if choice == '1':
+            org_app.create_event(
+                app.current_user_id,
+                input("Введите название мероприятия: "),
+                input("Введите описание мероприятия: "),
+                input("Введите дату мероприятия: "),
+                input("Введите дату окончания: "),
+                input("Введите место проведения: ")
+            )
+        elif choice == '2':
+            buy_app.purchase_ticket(
+                app.current_user_id,
+                int(input("Введите ID мероприятия: ")),
+                float(input("Введите цену билета: "))
+            )
+
