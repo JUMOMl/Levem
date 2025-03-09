@@ -71,7 +71,6 @@ class TestTicketPurchaseInterface(unittest.TestCase):
         user_id = 999  # Несуществующий ID пользователя
         event_id = self.event1.event_id
         price = 100.0
-
         result = self.ticket_purchase.purchase_ticket(user_id, event_id, price)
         self.assertFalse(result)
 
@@ -85,11 +84,13 @@ class TestTicketPurchaseInterface(unittest.TestCase):
         event_id = 999  # Несуществующий ID мероприятия
         price = 100.0
 
-        result = self.ticket_purchase.purchase_ticket(user_id, event_id, price)
+        result = self.ticket_purchase.purchase_ticket(user_id, 
+                                                      event_id, price)
         self.assertFalse(result)
 
         # Проверяем, что билет не создан
-        ticket = self.session.query(Ticket).filter_by(user_id=user_id, event_id=event_id).first()
+        ticket = self.session.query(Ticket).filter_by(user_id=user_id, 
+        event_id=event_id).first()
         self.assertIsNone(ticket)
 
 

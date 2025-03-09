@@ -1,7 +1,7 @@
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from mydatabase import Event, User, Ticket
 import logging
+
 
 class TicketPurchaseInterface:
     def __init__(self, session):
@@ -17,7 +17,9 @@ class TicketPurchaseInterface:
     def view_available_events(self):
         """
         Вывод списка доступных мероприятий с ценами билетов.
-        ООП: Полиморфизм - метод может адаптироваться под различное количество данных в базе.
+        ООП: Полиморфизм - метод
+        может адаптироваться под различное количество
+        данных в базе.
 
         Returns:
             list: Список доступных мероприятий.
@@ -30,10 +32,15 @@ class TicketPurchaseInterface:
         print("Доступные мероприятия:")
         for event in events:
             # ООП: Ассоциация - связь между событиями и их билетами через ForeignKey.
-            ticket_prices = self.session.query(Ticket.price).filter(Ticket.event_id == event.event_id).all()
-            price_list = [float(price[0]) for price in ticket_prices] if ticket_prices else [0.0]
+            ticket_prices_list = self.session.query(Ticket.price).filter(
+                Ticket.event_id == event.event_id
+            ).all()
+            price_list = [float(price[0]) for price in ticket_prices_list] if ticket_prices_list else [0.0]
             min_price = min(price_list) if price_list else "N/A"
-            print(f"ID: {event.event_id}, Название: {event.title}, Место: {event.location}, Минимальная цена билета: {min_price}")
+            print(
+                f"ID: {event.event_id}, Название: {event.title}, Место: {event.location}, "
+                f"Минимальная цена билета: {min_price}"
+            )
         return events
 
     def purchase_ticket(self, user_id: int, event_id: int, price: float):
