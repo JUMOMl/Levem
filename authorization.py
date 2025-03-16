@@ -49,7 +49,9 @@ class TicketPurchaseInterface:
             min_price = min(price_list) if price_list else "N/A"
             print(f"ID: {event.event_id}, Название: {event.title}, Место: {event.location}, Минимальная цена билета: {min_price}")
         return events
-
+    
+    
+    
     def purchase_ticket(self, user_id: int, event_id: int, price: float):
         """
         Покупка билета на мероприятие.
@@ -63,6 +65,11 @@ class TicketPurchaseInterface:
         Returns:
             bool: True, если билет успешно приобретен, иначе False.
         """
+        
+        if price < 0:
+            logging.warning(f"Отрицательная цена билета.")
+            print("Ошибка: Отрицательная цена билета.")
+            return False
         try:
             # Проверяем, существует ли пользователь
             user = self.session.query(User).filter(User.user_id == user_id).first()
@@ -321,6 +328,6 @@ if __name__ == "__main__":
             buy_app.purchase_ticket(
                 app.current_user_id,
                 int(input("Введите ID мероприятия: ")),
-                float(input("Введите цену билета: "))
+                int(input("Введите цену билета: "))
             )
 
