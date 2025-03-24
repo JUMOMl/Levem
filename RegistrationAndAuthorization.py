@@ -3,104 +3,7 @@ import bcrypt
 import re
 from sqlalchemy.orm import sessionmaker
 from mydatabase import User, create_database
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
 from mydatabase import Ticket, Event, User
-from organizerInterface import OrganizerInterface
-
-import logging
-import bcrypt
-import re
-from sqlalchemy.orm import sessionmaker
-from mydatabase import User, create_database
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
-from mydatabase import Ticket, Event, User
-from organizerInterface import OrganizerInterface
-
-class TicketPurchaseInterface:
-    def __init__(self, session):
-        """
-        Инициализация интерфейса для покупки билетов.
-        ООП: Инкапсуляция - сохранение сессии базы данных внутри объекта.
-
-        Args:
-            session: Сессия базы данных SQLAlchemy.
-        """
-        self.session = session
-
-    def view_available_events(self):
-        """
-        Вывод списка доступных мероприятий с ценами билетов.
-        ООП: Полиморфизм - метод адаптирован для работы с различными наборами данных.
-
-        Returns:
-            list: Список доступных мероприятий.
-        """
-        events = self.session.query(Event).all()
-        if not events:
-            print("Нет доступных мероприятий.")
-            return []
-
-        print("Доступные мероприятия:")
-        for event in events:
-            ticket_prices = self.session.query(Ticket.price).filter(Ticket.event_id == event.event_id).all()
-            price_list = [float(price[0]) for price in ticket_prices] if ticket_prices else [0.0]
-            min_price = min(price_list) if price_list else "N/A"
-            print(f"ID: {event.event_id}, Название: {event.title}, Место: {event.location}, Минимальная цена билета: {min_price}")
-        return events
-    
-    
-    
-    def purchase_ticket(self, user_id: int, event_id: int, price: float):
-        """
-        Покупка билета на мероприятие.
-        ООП: Инкапсуляция - метод скрывает внутренние операции покупки билета.
-
-        Args:
-            user_id (int): ID пользователя.
-            event_id (int): ID мероприятия.
-            price (float): Цена билета.
-
-        Returns:
-            bool: True, если билет успешно приобретен, иначе False.
-        """
-        
-        if price < 0:
-            logging.warning(f"Отрицательная цена билета.")
-            print("Ошибка: Отрицательная цена билета.")
-            return False
-        try:
-            # Проверяем, существует ли пользователь
-            user = self.session.query(User).filter(User.user_id == user_id).first()
-            if not user:
-                logging.warning(f"Пользователь с ID {user_id} не найден.")
-                print("Ошибка: Пользователь не найден.")
-                return False
-
-            # Проверяем, существует ли мероприятие
-            event = self.session.query(Event).filter(Event.event_id == event_id).first()
-            if not event:
-                logging.warning(f"Мероприятие с ID {event_id} не найдено.")
-                print("Ошибка: Мероприятие не найдено.")
-                return False
-
-            # Создаем запись о покупке билета
-            ticket = Ticket(user_id=user_id, event_id=event_id, price=price)
-            self.session.add(ticket)
-            self.session.commit()
-
-            logging.info(f"Пользователь с ID {user_id} успешно приобрел билет на мероприятие ID {event_id}.")
-            print("Билет успешно приобретен!")
-            return True
-
-        except SQLAlchemyError as e:
-            logging.error(f"Ошибка при покупке билета: {e}")
-            self.session.rollback()
-            print("Ошибка: Не удалось приобрести билет.")
-            return False
-
-
 class RegistrationAndAuthorization:
     def __init__(self, database_url='sqlite:///main_database.db'):
         """
@@ -267,7 +170,6 @@ class RegistrationAndAuthorization:
                 print('Ошибка: Неверный пароль.')
                 if input('Хотите попробовать снова? (да/нет): ').lower() != 'да':
                     return False
-
     def registration_menu(self) -> bool:
         """
         Меню для регистрации и входа в систему.
@@ -302,32 +204,3 @@ class RegistrationAndAuthorization:
                 break
             else:
                 print("Некорректный выбор. Пожалуйста, выберите 1, 2 или 3.")
-
-
-# ... (вся остальная часть кода остается без изменений)
-
-app = RegistrationAndAuthorization()
-org_app = OrganizerInterface(app.session)  # ООП: Ассоциация - передача сессии базы данных в другой класс.
-buy_app = TicketPurchaseInterface(app.session)  # ООП: Ассоциация - связь между объектами для управления данными.
-
-# Добавляем проверку на запуск файла напрямую
-if __name__ == "__main__":
-    if app.registration_menu():  # ООП: Полиморфизм - вызов разных действий через меню.
-        print("1 - создать, 2 - купить")
-        choice = input("выберите опцию (1-2): ")
-        if choice == '1':
-            org_app.create_event(
-                app.current_user_id,
-                input("Введите название мероприятия: "),
-                input("Введите описание мероприятия: "),
-                input("Введите дату мероприятия: "),
-                input("Введите дату окончания: "),
-                input("Введите место проведения: ")
-            )
-        elif choice == '2':
-            buy_app.purchase_ticket(
-                app.current_user_id,
-                int(input("Введите ID мероприятия: ")),
-                int(input("Введите цену билета: "))
-            )
-

@@ -2,7 +2,7 @@ import unittest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from mydatabase import Base, User, Ticket, Event
-from authorization import RegistrationAndAuthorization, TicketPurchaseInterface
+from main import RegistrationAndAuthorization, TicketPurchaseInterface
 from datetime import datetime
 
 # Создаем тестовую базу данных
