@@ -133,3 +133,21 @@
 2025-03-24 09:45:12,217 - WARNING - Пользователь с ID 999 не найден.
 2025-03-24 09:45:12,236 - INFO - Пользователь с ID 1 успешно приобрел билет на мероприятие ID 1.
 2025-03-24 09:46:20,399 - WARNING - Неверный пароль для пользователя Jumomi.
+2025-10-31 20:05:03,428 - ERROR - Ошибка при создании мероприятия: (sqlite3.OperationalError) table events has no column named organizer_id
+[SQL: INSERT INTO events (organizer_id, title, description, start_date, end_date, location) VALUES (?, ?, ?, ?, ?, ?)]
+[parameters: (9, 'Тестовое мероприятие', 'Описание тестового мероприятия', '2025-12-01 10:00:00.000000', '2025-12-01 18:00:00.000000', 'Тестовая локация')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-10-31 20:05:03,433 - ERROR - Ошибка при просмотре мероприятий: (sqlite3.OperationalError) no such column: events.organizer_id
+[SQL: SELECT events.event_id AS events_event_id, events.organizer_id AS events_organizer_id, events.title AS events_title, events.description AS events_description, events.start_date AS events_start_date, events.end_date AS events_end_date, events.location AS events_location 
+FROM events 
+WHERE events.organizer_id = ?]
+[parameters: (9,)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-10-31 20:05:03,434 - ERROR - Ошибка при просмотре мероприятий: (sqlite3.OperationalError) no such column: events.organizer_id
+[SQL: SELECT events.event_id AS events_event_id, events.organizer_id AS events_organizer_id, events.title AS events_title, events.description AS events_description, events.start_date AS events_start_date, events.end_date AS events_end_date, events.location AS events_location 
+FROM events 
+WHERE events.organizer_id = ?]
+[parameters: (10,)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-10-31 20:11:39,859 - INFO - Мероприятие 'Тестовое мероприятие' успешно создано организатором с ID 1.
+2025-10-31 20:11:39,872 - INFO - Пользователь с ID 2 успешно приобрел билет на мероприятие ID 1.
