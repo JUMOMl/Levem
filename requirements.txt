@@ -3,3 +3,4 @@ bcrypt==3.2.2
 pytest==7.4.0
 alembic==1.11.1
 psycopg2
+flask==2.3.3
